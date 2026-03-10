@@ -11,7 +11,7 @@ app.prepare().then(() => {
   const server = createServer((req, res) => handle(req, res));
 
   const io = new Server(server, {
-    path: "/game/socket.io" // путь для прокси через Nginx
+    path: "/socket.io"
   });
 
   const rooms = {};
@@ -91,8 +91,10 @@ app.prepare().then(() => {
     });
   });
 
-  server.listen(3001, () => {
-    console.log("GAME SERVER STARTED ON PORT 3001");
+  const PORT = process.env.PORT || 3001;
+  
+  server.listen(PORT, () => {
+    console.log("GAME SERVER STARTED ON PORT", PORT);
   });
 });
 
