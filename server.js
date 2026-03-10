@@ -8,10 +8,12 @@ const app = next({ dev, dir: path.resolve(__dirname) });
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
+  // Создаём HTTP сервер
   const server = createServer((req, res) => handle(req, res));
 
+  // Настройка Socket.io
   const io = new Server(server, {
-    path: "/socket.io"
+    path: "/socket.io" // обязательно для работы через Render
   });
 
   const rooms = {};
@@ -45,7 +47,6 @@ app.prepare().then(() => {
         const [id1, id2] = rooms[roomId].players;
         io.to(id1).emit("otherPlayer", { name: rooms[roomId].playerNames[id2] });
         io.to(id2).emit("otherPlayer", { name: rooms[roomId].playerNames[id1] });
-
         io.to(roomId).emit("bothConnected");
       }
       console.log("JOINED ROOM:", roomId, "Player:", name);
@@ -62,7 +63,7 @@ app.prepare().then(() => {
       }
     });
 
-    // Ход
+    // Ход игрока
     socket.on("makeGuess", ({ roomId, guess }) => {
       const room = rooms[roomId];
       if (!room) return;
@@ -91,13 +92,14 @@ app.prepare().then(() => {
     });
   });
 
-  const PORT = process.env.PORT || 3001;
-  
+  // Render сам задаёт PORT
+  const PORT = process.env.PORT || 3000;
   server.listen(PORT, () => {
     console.log("GAME SERVER STARTED ON PORT", PORT);
   });
 });
 
+// Проверка хода
 function checkGuess(secret, guess) {
   let bulls = 0;
   let cows = 0;
