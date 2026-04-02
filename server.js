@@ -11,7 +11,7 @@ app.prepare().then(() => {
   const server = createServer((req, res) => handle(req, res));
 
   const io = new Server(server, {
-    path: "/game/socket.io",
+    path: "/socket.io",
     pingTimeout: 60000,      // 60 секунд
     pingInterval: 25000,     // каждые 25 секунд
     maxHttpBufferSize: 1e6   // 1MB, ограничение на событие
@@ -113,9 +113,10 @@ app.prepare().then(() => {
     });
   });
 
-  server.listen(3001, () => {
-    console.log("GAME SERVER STARTED ON PORT http://localhost:3001/game");
-  });
+  const PORT = process.env.PORT || 3001; // fallback на локальный порт
+    server.listen(PORT, () => {
+      console.log(`GAME SERVER STARTED ON PORT ${PORT}`);
+    });
 });
 
 function checkGuess(secret, guess) {
