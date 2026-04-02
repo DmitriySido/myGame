@@ -1,16 +1,28 @@
 import "./globals.css";
 import { Montserrat } from 'next/font/google';
-import Head from "next/head"; // <- импортируем Head
 
-const montserrat = Montserrat({
-  subsets: ['latin'],
-  weight: ['400', '500', '700'],
-  variable: '--font-montserrat',
+const montserrat = Montserrat({ 
+  subsets: ['latin'], 
+  weight: ['400', '500', '700'], 
+  variable: '--font-montserrat', 
 });
+
+// Настройки вьюпорта для предотвращения зума
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: 'black', // Опционально: цвет статус-бара
+};
 
 export const metadata = {
   title: 'Bulls and Cows',
   description: 'Игра Быки и Коровы',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+  },
 };
 
 export default function RootLayout({
@@ -20,10 +32,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={montserrat.variable}>
-      <Head>
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-      </Head>
       <body className="antialiased">
         {children}
       </body>
