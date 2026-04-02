@@ -3,7 +3,7 @@ const next = require("next");
 const { Server } = require("socket.io");
 const path = require("path");
 
-const dev = true; // production
+const dev = false; // production
 const app = next({ dev, dir: path.resolve(__dirname) });
 const handle = app.getRequestHandler();
 
