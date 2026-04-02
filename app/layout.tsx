@@ -1,5 +1,6 @@
 import "./globals.css";
 import { Montserrat } from 'next/font/google';
+import Head from "next/head"; // <- импортируем Head
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -19,6 +20,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={montserrat.variable}>
+      <Head>
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+        />
+      </Head>
       <body className="antialiased">
         {children}
       </body>
