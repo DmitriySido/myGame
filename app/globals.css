@@ -69,6 +69,16 @@ body{
   
 }
 
+input, textarea, select {
+  font-size: 16px; /* минимальный размер для iOS */
+  -webkit-text-size-adjust: 100%; /* чтобы Safari не увеличивал текст */
+  -webkit-appearance: none; /* убирает нативное оформление */
+}
+
+body {
+  touch-action: manipulation; /* ускоряет касания */
+}
+
 .main-continer{
   position: relative;
   height: 100%;
