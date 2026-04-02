@@ -11,7 +11,10 @@ app.prepare().then(() => {
   const server = createServer((req, res) => handle(req, res));
 
   const io = new Server(server, {
-    path: "/socket.io" // путь для прокси через Nginx // СДЕЛАТЬ ОБРАТНО /game/socket.io
+    path: "/game/socket.io",
+    pingTimeout: 60000,      // 60 секунд
+    pingInterval: 25000,     // каждые 25 секунд
+    maxHttpBufferSize: 1e6   // 1MB, ограничение на событие
   });
 
   const rooms = {};
@@ -94,6 +97,19 @@ app.prepare().then(() => {
 
     socket.on("disconnect", () => {
       console.log("DISCONNECTED:", socket.id);
+      
+      // Удаляем игрока из всех комнат
+      for (const roomId in rooms) {
+        const room = rooms[roomId];
+        room.players = room.players.filter(id => id !== socket.id);
+        delete room.secrets[socket.id];
+        delete room.playerNames[socket.id];
+
+        if (room.players.length === 0) {
+          delete rooms[roomId]; // освобождаем память
+          console.log("Room deleted:", roomId);
+        }
+      }
     });
   });
 
