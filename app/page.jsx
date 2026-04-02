@@ -25,8 +25,43 @@ export default function Home() {
   const [gameOver, setGameOver] = useState(false);
   const [winner, setWinner] = useState(null)
 
-const myMessagesRef = useRef(null);
-const enemyMessagesRef = useRef(null);
+  const myMessagesRef = useRef(null);
+  const enemyMessagesRef = useRef(null);
+
+  const [inactiveNumbers, setInactiveNumbers] = useState([]);
+
+  const toggleNumber = (num) => {
+    setInactiveNumbers((prev) =>
+      prev.includes(num)
+        ? prev.filter((n) => n !== num) // убрать
+        : [...prev, num] // добавить
+    );
+  };
+
+const [currentEmoji, setCurrentEmoji] = useState("?");
+const [showEmojiPopup, setShowEmojiPopup] = useState(false);
+
+const emojis = ["😀","😂","😎","❤️","🤔","😢","😡","👍","👎","👻","💩","👏","🤯","💋","🤬", "🧠"];
+
+// Получаем эмодзи от сервера
+useEffect(() => {
+  if (!socket) return;
+
+  socket.on("emojiSelected", ({ emoji }) => {
+    setCurrentEmoji(emoji); // обновляем для всех
+  });
+
+  return () => socket.off("emojiSelected");
+}, [socket]);
+
+// Выбор эмодзи
+const handleEmojiSelect = (emoji) => {
+  setCurrentEmoji(emoji); // сразу обновляем локально
+  setShowEmojiPopup(false);
+
+  socket.emit("emojiSelected", { roomId: room, emoji }); // отправляем на сервер
+};
+
 
 useEffect(() => {
 
@@ -47,9 +82,11 @@ useEffect(() => {
       "Пельмешок",
       "Котопёс",
       "Fантiк",
-      "бобик_в_шляпке",
-      "мОйонезный Шльопок",
-      "Гороховый король"
+      "Лапка",
+      "Окунь",
+      "Сырник",
+      "Кульок",
+      "ТунТунСахур"
     ];
 
     // Выбираем случайное имя один раз при рендере
@@ -99,13 +136,15 @@ useEffect(() => {
     socket.emit("joinRoom", { roomId: inputRoom, name });
     setRoom(inputRoom);
   };
+
   const sendSecret = () => {
-    if (secret.length !== 4) return alert("Число должно быть 4-значное");
+    // if (secret.length !== 4) return alert("Число должно быть 4-значное");
     socket.emit("setSecret", { roomId: room, number: secret, name });
     setSecretSet(true);
   };
+  
   const makeGuess = () => {
-    if (guess.length !== 4) return alert("Число должно быть 4-значное");
+    // if (guess.length !== 4) return alert("Число должно быть 4-значное");
     socket.emit("makeGuess", { roomId: room, guess });
     setGuess("");
   };
@@ -144,8 +183,8 @@ useEffect(() => {
 
         <p className="game-over-subtitle">
           {isWinner
-            ? "Ты угадал число первым!"
-            : `${otherName} угадал(a) число раньше.`}
+            ? "Ты угадал(a) число первым!"
+            : `${otherName} угадал(a) число раньше❤️`}
         </p>
 
         <button className="new-game-button" onClick={startNewGame}>
@@ -254,35 +293,67 @@ useEffect(() => {
           {turn === socket.id ? (
             <>
               <h4 className="who-move">Твой ход</h4>
-              <input
-                className="input-my-step"
-                placeholder="Введите число"
-                value={guess}
-                onChange={handleGuessChange}
-              />
-              <MakeButton sendSecret={makeGuess} text={'Проверить'}/>
+              <div className="input-wrapper">
+                <input
+                  className="input-my-step"
+                  placeholder="Введите число"
+                  value={guess}
+                  onChange={handleGuessChange}
+                />
+
+                <button className="send-btn" onClick={() => makeGuess()}>
+                    <img src="/game/send-icon.png" alt="icon" width="25" />
+                  </button>
+              </div>
             </>
           ) : (
             <div className="step-wrapper inactive">
               <>
                 <h4 className="who-move">Ход {otherName}</h4>
-                <input
-                  className="input-my-step"
-                  placeholder="Ждём свой ход"
-                  value={guess}
-                  onChange={handleGuessChange}
-                  disabled
-                />
-                <MakeButton sendSecret={() => {}} text={'Проверить'}/>
+                <div className="input-wrapper">
+                  <input
+                    className="input-my-step"
+                    placeholder="Ждём свой ход"
+                    value={guess}
+                    onChange={handleGuessChange}
+                    disabled
+                  />
+
+                  <button className="send-btn" onClick={() => makeGuess()} disabled>
+                    <img src="/game/send-icon.png" alt="icon" width="25" />
+                  </button>
+                </div>
+                
               </>
           </div>
           )}
         </div>
       )}
 
-      {/* Разделение ходов на две колонки */}
       {connected && messages.length > 0 && (
+        <div className="not-a-number-wrapper">
+          {[1,2,3,4,5,6,7,8,9,0].map((num) => (
+            <button
+              key={num}
+              onClick={() => toggleNumber(num)}
+              className={`num-btn ${inactiveNumbers.includes(num) ? "inactive" : ""}`}
+            >
+              {num}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Разделение ходов на две колонки */}
+    {connected && messages.length > 0 && (
       <div className="columns-wrapper">
+
+        <button
+          className="emoji-btn"
+          onClick={() => setShowEmojiPopup(!showEmojiPopup)}
+        >
+          {currentEmoji}
+        </button>
 
         <div className="column">
           <h4 className="column-title">Мои ходы</h4>
@@ -313,6 +384,22 @@ useEffect(() => {
         </div>
 
       </div>
+    )}
+
+      {showEmojiPopup && (
+        <div className="emoji-wrapper">
+          <div className="emoji-popup">
+            {emojis.map((emoji, idx) => (
+              <button
+                key={idx}
+                className="emoji-item"
+                onClick={() => handleEmojiSelect(emoji)}
+              >
+                {emoji}
+              </button>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );
