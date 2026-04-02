@@ -765,3 +765,13 @@ transition:0.2s;
   position: absolute;
   top: 0px;
 }
+
+.input-my-step:disabled{
+  opacity: 0.5;
+  transition: all .5s ease-in-out;
+}
+
+.send-btn:disabled{
+  opacity: 0.5;
+  transition: all .5s ease-in-out;
+}
