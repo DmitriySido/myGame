@@ -1,7 +1,7 @@
-const MakeButton = ({sendSecret, text}) => {
+const MakeButton = ({sendSecret, text, disabled }) => {
 
   return(
-    <button className="make-button" onClick={sendSecret}>{text}</button>
+    <button className="make-button" onClick={sendSecret} disabled={disabled}>{text}</button>
   )
 }
 
