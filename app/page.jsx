@@ -301,7 +301,7 @@ useEffect(() => {
                   onChange={handleGuessChange}
                 />
 
-                <button className="send-btn" onClick={() => makeGuess()}>
+                <button className="send-btn" onClick={() => makeGuess()} disabled={guess.length !== 4}>
                     <img src="/game/send-icon.png" alt="icon" width="25" />
                   </button>
               </div>
