@@ -170,6 +170,7 @@ useEffect(() => {
     setGuess("");
     setMessages([]);
     setSecretSet(false);
+    setInactiveNumbers([])
   };
 
   if (gameOver) {
