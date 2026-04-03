@@ -283,7 +283,7 @@ useEffect(() => {
             value={secret}
             onChange={handleSecretChange}
           />
-          <MakeButton sendSecret={sendSecret} text={'Начать'}/>
+          <MakeButton sendSecret={sendSecret} text={'Начать'} disabled={secret.length !== 4}/>
         </div>
       )}
 
